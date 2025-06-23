@@ -1,4 +1,4 @@
-# AI Video Dubbing Backend
+# AI Video Dubbing
 
 A Node.js backend service for the AI Video Dubbing application that provides automated video processing, speech-to-text conversion, language translation, and text-to-speech synthesis capabilities.
 
