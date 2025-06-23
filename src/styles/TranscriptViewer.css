@@ -1,0 +1,112 @@
+/* src/styles/TranscriptViewer.css */
+
+.transcript-container {
+  width: 100%;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.transcript-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.transcript-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.transcript-tabs button {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.transcript-tabs button:hover {
+  color: var(--primary);
+}
+
+.transcript-tabs button.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+.copy-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.copy-button:hover {
+  background-color: var(--primary);
+  opacity: 0.9;
+}
+
+.transcript-content {
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: var(--secondary);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.transcript-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--foreground);
+}
+
+.transcript-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  padding: 0.5rem 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .transcript-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .copy-button {
+    margin-top: 0.5rem;
+    align-self: flex-end;
+  }
+  
+  .transcript-tabs button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .transcript-content {
+    padding: 0.75rem;
+    max-height: 200px;
+  }
+  
+  .transcript-text {
+    font-size: 0.85rem;
+  }
+}
