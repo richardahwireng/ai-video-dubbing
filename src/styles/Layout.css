@@ -31,9 +31,9 @@
   top: 0;
   left: 0;
   right: 0;
-  /* background: linear-gradient(to bottom right, rgba(88, 28, 135, 0.3), rgba(30, 58, 138, 0.3), rgba(14, 116, 144, 0.3)); */
+  background: linear-gradient(to bottom right, rgba(88, 28, 135, 0.3), rgba(30, 58, 138, 0.3), rgba(14, 116, 144, 0.3));
   background-color: rgba(17, 24, 39, 0.95);
-  /* backdrop-filter: blur(10px); */
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(168, 85, 247, 0.2);
   z-index: 1000;
   padding: 1rem;
