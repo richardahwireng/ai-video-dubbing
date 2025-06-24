@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import "../styles/HomePage.css";
 import { Link } from "react-router-dom";
+import ContactForm from "./ContactForm";
 
 function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -78,27 +79,29 @@ function HomePage() {
         <nav className="navbar">
           <div className="nav-container">
             <div className="logo">
-              {/* <div className="logo-icon">
-                <Cpu className="logo-cpu" />
-              </div> */}
-              <span className="logo-text"> Richard DubAI</span>
+              <Link to="/" className="logo-text">
+                {" "}
+                Richard DubAI
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
             <div className="nav-links">
+              <a href="/" className="nav-link">
+                Home
+              </a>
               <a href="#features" className="nav-link">
                 Features
               </a>
-              {/* <a href="#pricing" className="nav-link">
-                Pricing
-              </a> */}
               <a href="#contact" className="nav-link">
                 Contact
               </a>
             </div>
 
             {/* Desktop CTA Button */}
-            <Link to='/upload' className="cta-button desktop-cta">Get Started</Link>
+            <Link to="/upload" className="cta-button desktop-cta">
+              Get Started
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
@@ -132,9 +135,9 @@ function HomePage() {
                   Pricing
                 </a>
                 <a
-                  href="#contact"
+                  href="/contact"
                   className="mobile-nav-link"
-                  onClick={() => setMobileMenuOpen(false)}
+                  // onClick={() => setMobileMenuOpen(false)}
                 >
                   Contact
                 </a>
@@ -231,13 +234,14 @@ function HomePage() {
           </div>
         </section>
 
+        <section id="contact">
+          <ContactForm />
+        </section>
+
         {/* Footer */}
         <footer className="footer">
           <div className="footer-content">
             <div className="footer-logo">
-              {/* <div className="footer-logo-icon">
-                <Cpu className="footer-cpu" />
-              </div> */}
               <span className="footer-logo-text">Richard DubAI</span>
             </div>
             <p className="footer-copyright">
