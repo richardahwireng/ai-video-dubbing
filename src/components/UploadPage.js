@@ -9,7 +9,7 @@ import '../styles/App.css';
 // Base URL for API calls - Change to your server address if different
 const API_BASE_URL = 'http://localhost:5000';
 
-function App() {
+function UploadPage() {
   const [videoUrl, setVideoUrl] = useState('');
   // Remove the originalVideo state since it's not being used
   const [status, setStatus] = useState('Upload your video to get started.');
@@ -178,4 +178,4 @@ function App() {
   );
 }
 
-export default App;
+export default UploadPage;
