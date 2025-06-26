@@ -26,6 +26,14 @@
   --shadow: rgba(0, 0, 0, 0.3);
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background-color: var(--background);

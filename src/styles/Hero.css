@@ -1,0 +1,279 @@
+.hero-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .hero-section {
+    padding: 5rem 1.5rem;
+  }
+}
+
+.hero-content {
+  text-align: center;
+  transform: translateY(2.5rem);
+  opacity: 0;
+  transition: all 1s;
+}
+
+.hero-content.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(168, 85, 247, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 9999px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .hero-badge {
+    padding: 0.5rem 1rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.badge-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: #c084fc;
+}
+
+@media (min-width: 640px) {
+  .badge-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.badge-text {
+  font-size: 0.75rem;
+  color: #d8b4fe;
+}
+
+@media (min-width: 640px) {
+  .badge-text {
+    font-size: 0.875rem;
+  }
+}
+
+.hero-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+  padding: 0 0.5rem;
+  color: white;
+}
+
+@media (min-width: 640px) {
+  .hero-title {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: 4.5rem;
+  }
+}
+
+.hero-title-gradient {
+  display: block;
+  background: linear-gradient(to right, #c084fc, #f472b6, #60a5fa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-description {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin-bottom: 2rem;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.625;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .hero-description {
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-description {
+    font-size: 1.25rem;
+  }
+}
+
+.hero-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .hero-buttons {
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 4rem;
+  }
+}
+
+.primary-button {
+  width: 100%;
+  background: linear-gradient(to right, #9333ea, #2563eb);
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  border: none;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+@media (min-width: 640px) {
+  .primary-button {
+    width: auto;
+  }
+}
+
+.primary-button:hover {
+  background: linear-gradient(to right, #7c3aed, #1d4ed8);
+  transform: scale(1.05);
+}
+
+.button-arrow {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.3s;
+}
+
+.primary-button:hover .button-arrow {
+  transform: translateX(0.25rem);
+}
+
+.secondary-button {
+  width: 100%;
+  border: 1px solid #4b5563;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  background: none;
+  color: white;
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .secondary-button {
+    width: auto;
+  }
+}
+
+.secondary-button:hover {
+  border-color: #a855f7;
+}
+
+.play-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .stats-grid {
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-item {
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.stat-item:hover {
+  transform: scale(1.1);
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #c084fc, #60a5fa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .stat-number {
+    font-size: 1.875rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .stat-number {
+    font-size: 2.25rem;
+  }
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+@media (min-width: 640px) {
+  .stat-label {
+    font-size: 1rem;
+  }
+}
