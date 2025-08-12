@@ -1,42 +1,68 @@
-const fs = require('fs');
 const axios = require('axios');
-const { exec } = require('child_process');
-const util = require('util');
 require('dotenv').config();
 
-const execPromise = util.promisify(exec);
+// Base URL for the TTS API
+const TTS_API_URL = process.env.TTS_API_URL ;
+const MODEL_LOAD_URL = process.env.MODEL_LOAD_URL;
 
-async function generateSpeech(text, outputPath) {
+// Function to load the model
+async function loadModel() {
   try {
-    console.log(`Generating speech for: "${text.slice(0, 60)}..."`);
+    console.log("🚀 Loading model...");
+    const response = await axios.post(MODEL_LOAD_URL, {}, { headers: { 'accept': 'application/json' } });
+    
+    if (response.status === 200) {
+      console.log("✅ Model loaded successfully!");
+    } else {
+      console.error("❌ Failed to load model:", response.data);
+      throw new Error('Failed to load model');
+    }
+  } catch (error) {
+    console.error("❌ Error loading model:", error.message);
+    throw error;
+  }
+}
 
-    const apiKey = process.env.HUGGINGFACE_API_KEY;
-    if (!apiKey) throw new Error('Missing HUGGINGFACE_API_KEY in .env');
+// Function to generate speech using the API
+async function generateSpeech(text) {
+  try {
+    console.log(`🔊 Generating speech for: "${text.slice(0, 60)}..."`);
 
-    const response = await axios.post(
-      'https://api-inference.huggingface.co/models/facebook/mms-tts',
-      { inputs: text },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Use-Voice': 'aka', 
-        },
-        responseType: 'arraybuffer',
-      }
-    );
+    // Ensure the model is loaded first
+    await loadModel();
 
-    fs.writeFileSync(outputPath, response.data);
-    console.log(`✅ Audio saved to: ${outputPath}`);
+    const modelName = 'AI-VIDEO-DUBBING';  // Correct model name
+    const speaker = 'male';  // Choose male/female speaker
+    const lengthScale = 1.0;  // Speed of speech
+    const autocorrect = false;  // Whether autocorrection should be applied
+
+    const requestBody = {
+      text,
+      model_name: modelName,
+      speaker,
+      length_scale: lengthScale,
+      autocorrect,
+    };
+
+    console.log("🚀 Sending request to TTS API:", TTS_API_URL);
+
+    const response = await axios.post(TTS_API_URL, requestBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+      },
+    });
+
+    if (response.data.success) {
+      const audioPath = response.data.audio_path;
+      console.log(`✅ MP3 audio saved to: ${audioPath}`);
+      return audioPath;
+    } else {
+      console.error("❌ Error generating speech:", response.data.error);
+      throw new Error('TTS API synthesis failed.');
+    }
   } catch (error) {
     console.error('❌ Error generating speech:', error.message);
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('⚠️ Creating silent audio as fallback...');
-      await execPromise(`ffmpeg -f lavfi -i anullsrc=r=24000:cl=mono -t 10 -q:a 9 -acodec libmp3lame "${outputPath}"`);
-      return;
-    }
-
     throw error;
   }
 }
