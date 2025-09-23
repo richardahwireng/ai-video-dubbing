@@ -1,21 +1,22 @@
 # AI Video Dubbing
 
-A Node.js backend service for the AI Video Dubbing application that provides automated video processing, speech-to-text conversion, language translation, and text-to-speech synthesis capabilities.
+A full-stack application featuring a Node.js backend that provides an automated pipeline for dubbing videos from English to Twi. It handles video processing, speech-to-text with speaker detection, language translation, and text-to-speech synthesis.
 
 ## 🚀 Features
 
-- **Video Processing**: Extract audio from video files using FFmpeg
-- **Speech-to-Text**: Convert spoken English to text using AssemblyAI
-- **Language Translation**: Translate English text to Twi language using Google Translate API
-- **Text-to-Speech**: Generate natural-sounding Twi speech using Hugging Face models
-- **RESTful API**: Clean, documented API endpoints for easy integration
+-   **Automated Dubbing Pipeline**: A single API call to upload a video and receive a fully dubbed audio track and subtitles.
+-   **Speaker Diarization**: Intelligently switches between fast single-speaker transcription and multi-speaker detection using Google Cloud Speech-to-Text.
+-   **Accurate Translation**: Translates transcribed text from English to Twi, maintaining sentence structure.
+-   **Dual-Voice Synthesis**: For multi-speaker videos, it generates distinct voices for different speakers using a custom VITS Text-to-Speech model.
+-   **Smart Fallback**: If automatic speaker detection fails, it applies a manual alternation of voices to ensure a good user experience.
+-   **File Management**: Includes temporary file storage for processing and a scheduled cleanup job to manage disk space.
 
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v14.0.0 or newer)
-- **npm** (v6.0.0 or newer)
+- **Node.js** (v16.0.0 or newer)
+- **npm** (v8.0.0 or newer)
 - **FFmpeg** (for audio/video processing)
 
 ## 🛠️ Installation
@@ -29,7 +30,7 @@ Choose your operating system:
 # Using Chocolatey (recommended)
 choco install ffmpeg
 
-# Or download from https://ffmpeg.org/download.html
+# Or download from https://ffmpeg.org/download.html and add to your system's PATH
 ```
 
 **macOS:**
@@ -84,20 +85,22 @@ NODE_ENV=development
 ### 4. API Key Setup
 
 **AssemblyAI:**
-1. Visit [AssemblyAI](https://www.assemblyai.com/)
-2. Sign up for a free account
-3. Navigate to your dashboard and copy your API key
+1. Visit [AssemblyAI](https://www.assemblyai.com/) and sign up for an account.
+2. Navigate to your dashboard and copy your API key.
+3. For more details, refer to the [AssemblyAI API documentation](https://www.assemblyai.com/docs).
 
 **Google Cloud Translation:**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the Cloud Translation API
-4. Create credentials and copy your API key
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project or select an existing one.
+3. Enable the [Cloud Translation API](https://console.cloud.google.com/apis/library/translate.googleapis.com).
+4. Create credentials and copy your API key.
+5. For more details, see the [official documentation](https://cloud.google.com/translate/docs).
 
 **Hugging Face:**
-1. Sign up at [Hugging Face](https://huggingface.co/)
-2. Go to Settings → Access Tokens
-3. Create a new token with read permissions
+1. Sign up at [Hugging Face](https://huggingface.co/).
+2. Go to **Settings → Access Tokens**.
+3. Create a new token with `read` permissions.
+4. For more details, see the Inference API documentation.
 
 ## 🚀 Running the Server
 
@@ -273,9 +276,9 @@ This project is designed for educational purposes and includes several developme
 - **Testing Support**: Includes mock endpoints for UI development without API dependencies
 
 ### Rate Limiting Considerations
-- AssemblyAI Free Tier: 5 hours of transcription per month
-- Google Translate: 500,000 characters per month (free tier)
-- Hugging Face: Rate limits apply based on model usage
+- **AssemblyAI**: The free tier includes 5 hours of transcription per month. See pricing details.
+- **Google Translate**: The free tier includes 500,000 characters per month. See pricing details.
+- **Hugging Face**: Rate limits apply based on model usage and subscription tier. See the rate limit documentation.
 
 ## 🐛 Troubleshooting
 
@@ -298,9 +301,7 @@ setx PATH "%PATH%;C:\path\to\ffmpeg\bin"
 ```
 
 **Transcription API Errors:**
-- Verify your AssemblyAI API key is active
-- Check your account usage limits
-- Ensure uploaded video files contain audio
+- Ensure your `GOOGLE_APPLICATION_CREDENTIALS` path in the `.env` file is correct and points to a valid service account key.
 
 **Memory Issues with Large Files:**
 ```javascript
@@ -317,10 +318,9 @@ Enable detailed logging:
 DEBUG=app:* npm start
 ```
 
-## 🧪 Testing
+## 10. Testing
 
-Run the test suite:
-
+The project includes a suite of tests to ensure code quality and correctness.
 ```bash
 # Run all tests
 npm test

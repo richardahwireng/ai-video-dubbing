@@ -1,30 +1,61 @@
 // src/components/TranscriptViewer.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/TranscriptViewer.css';
 
-function TranscriptViewer({ originalText, translatedText }) {
+function TranscriptViewer({ subtitles, currentTime, onSeek }) {
   const [activeTab, setActiveTab] = useState('original');
+  // State to manage whether the transcript should auto-scroll.
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+
+  // Refs for the highlighted line and its scrollable container
+  const activeLineRef = useRef(null);
+  const containerRef = useRef(null);
   
-  // Copy text to clipboard function
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        // Show a temporary success message
-        const copyBtn = document.getElementById('copy-btn');
-        const originalText = copyBtn.innerText;
-        copyBtn.innerText = 'Copied!';
-        
-        setTimeout(() => {
-          copyBtn.innerText = originalText;
-        }, 2000);
-      })
-      .catch(err => {
-        console.error('Failed to copy text: ', err);
-      });
+  const handleLineClick = (lineStart) => {
+    if (onSeek) {
+      onSeek(lineStart);
+    }
+    // Re-enable auto-scrolling when a user clicks a line.
+    setAutoScrollEnabled(true);
   };
 
+  const copyToClipboard = () => {
+    if (!subtitles) return;
+    const textToCopy = activeTab === 'original' 
+      ? subtitles.map(line => line.original_en).join('\n')
+      : subtitles.map(line => line.twi).join('\n');
+      
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => alert('Transcript copied to clipboard!'))
+      .catch(err => console.error('Failed to copy text: ', err));
+  };
+
+  // FIX: Replace scrollIntoView with manual scrollTop calculation for precise control.
+  useEffect(() => {
+    // Only scroll if auto-scrolling is enabled and the necessary elements exist.
+    if (activeLineRef.current && containerRef.current && autoScrollEnabled) {
+      const container = containerRef.current;
+      const activeLine = activeLineRef.current;
+
+      // Calculate the desired scroll position to center the active line within the container.
+      const scrollOffset = 
+        activeLine.offsetTop - 
+        (container.clientHeight / 2) + 
+        (activeLine.clientHeight / 2);
+
+      // Apply the smooth scroll to the container only.
+      container.scrollTo({
+        top: scrollOffset,
+        behavior: 'smooth',
+      });
+    }
+  }, [currentTime, autoScrollEnabled]);
+
   return (
-    <div className="transcript-container">
+    <div 
+      className="transcript-container"
+      onWheel={() => setAutoScrollEnabled(false)} // Disable auto-scroll on manual scroll.
+    >
       <div className="transcript-header">
         <div className="transcript-tabs">
           <button 
@@ -34,38 +65,36 @@ function TranscriptViewer({ originalText, translatedText }) {
             English Transcript
           </button>
           <button 
-            className={activeTab === 'translated' ? 'active' : ''} 
-            onClick={() => setActiveTab('translated')}
+            className={activeTab === 'twi' ? 'active' : ''} 
+            onClick={() => setActiveTab('twi')}
           >
             Twi Translation
           </button>
         </div>
-        <button 
-          id="copy-btn"
-          className="copy-button"
-          onClick={() => copyToClipboard(activeTab === 'original' ? originalText : translatedText)}
-        >
+        <button className="copy-button" onClick={copyToClipboard}>
           Copy Text
         </button>
       </div>
       
-      <div className="transcript-content">
-        {activeTab === 'original' ? (
-          <div className="transcript-text">{originalText}</div>
+      {/* Attach the new ref to the scrollable content container */}
+      <div className="transcript-content" ref={containerRef}>
+        {subtitles && subtitles.length > 0 ? (
+          subtitles.map((line, index) => {
+            const isActive = Number(currentTime) >= Number(line.start) && Number(currentTime) <= Number(line.end);
+            return (
+              <p 
+                key={index}
+                ref={isActive ? activeLineRef : null}
+                className={`transcript-line ${isActive ? 'highlighted-line' : ''}`}
+                onClick={() => handleLineClick(line.start)}
+              >
+                {activeTab === 'original' ? line.original_en : line.twi}
+              </p>
+            );
+          })
         ) : (
-          <div className="transcript-text">{translatedText}</div>
+          <p>No transcript available.</p>
         )}
-      </div>
-      
-      <div className="transcript-footer">
-        <div className="character-count">
-          {activeTab === 'original' 
-            ? `English: ${originalText.length} characters` 
-            : `Twi: ${translatedText.length} characters`}
-        </div>
-        <div className="language-indicator">
-          {activeTab === 'original' ? 'English' : 'Twi'}
-        </div>
       </div>
     </div>
   );

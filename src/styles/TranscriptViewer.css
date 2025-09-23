@@ -1,112 +1,153 @@
 /* src/styles/TranscriptViewer.css */
 
+:root, [data-theme='light'] {
+  --transcript-bg: #f9f9fb;
+  --transcript-header-bg: #ffffff;
+  --transcript-content-bg: #ffffff;
+  --transcript-text-primary: #1a1a1a;
+  --transcript-text-secondary: #5a5a5a;
+  --transcript-border-color: #e0e0e0;
+  --transcript-accent: #007bff;
+  --transcript-accent-hover: #0056b3;
+  --transcript-accent-text: #ffffff;
+  --transcript-shadow: rgba(0, 0, 0, 0.08);
+  --scrollbar-thumb: #c1c1c1;
+  --scrollbar-thumb-hover: #a8a8a8;
+}
+
+[data-theme='dark'] {
+  --transcript-bg: #2c2c2e;
+  --transcript-header-bg: #1c1c1e;
+  --transcript-content-bg: #1c1c1e;
+  --transcript-text-primary: #e0e0e0;
+  --transcript-text-secondary: #a0a0a0;
+  --transcript-border-color: #444444;
+  --transcript-accent: #61dafb;
+  --transcript-accent-hover: #21a1f1;
+  --transcript-accent-text: #1a1a1a;
+  --transcript-shadow: rgba(0, 0, 0, 0.4);
+  --scrollbar-thumb: #555;
+  --scrollbar-thumb-hover: #777;
+}
+
 .transcript-container {
   width: 100%;
-  margin: 1.5rem 0;
-  padding: 1rem;
-  border-radius: 10px;
-  background-color: var(--card-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  max-width: 800px;
+  margin: 2rem auto;
+  border-radius: 12px;
+  background-color: var(--transcript-header-bg);
+  border: 1px solid var(--transcript-border-color);
+  box-shadow: 0 4px 12px var(--transcript-shadow);
+  overflow: hidden;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .transcript-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--transcript-border-color);
 }
 
 .transcript-tabs {
   display: flex;
-  border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
 }
 
 .transcript-tabs button {
   background: none;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--foreground);
+  font-weight: 600;
+  color: var(--transcript-text-secondary);
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
 }
 
 .transcript-tabs button:hover {
-  color: var(--primary);
+  background-color: var(--transcript-bg);
+  color: var(--transcript-text-primary);
 }
 
 .transcript-tabs button.active {
-  color: var(--primary);
-  border-bottom: 2px solid var(--primary);
+  background-color: var(--transcript-accent);
+  color: var(--transcript-accent-text);
 }
 
 .copy-button {
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--transcript-accent);
+  color: var(--transcript-accent-text);
   border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
   font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease-in-out;
 }
 
 .copy-button:hover {
-  background-color: var(--primary);
-  opacity: 0.9;
+  background-color: var(--transcript-accent-hover);
+  transform: scale(1.05);
 }
 
 .transcript-content {
-  padding: 1rem;
-  max-height: 300px;
+  padding: 0.5rem 1rem;
+  max-height: 250px;
   overflow-y: auto;
-  background-color: var(--secondary);
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
+  background-color: var(--transcript-content-bg);
 }
 
-.transcript-text {
+/* Custom Scrollbar for Webkit browsers (Chrome, Safari) */
+.transcript-content::-webkit-scrollbar {
+  width: 10px;
+}
+.transcript-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.transcript-content::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 10px;
+  border: 3px solid var(--transcript-content-bg);
+}
+.transcript-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Custom Scrollbar for Firefox */
+.transcript-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--transcript-content-bg);
+}
+
+.transcript-line {
   font-size: 0.95rem;
   line-height: 1.6;
-  white-space: pre-wrap;
-  color: var(--foreground);
+  padding: 0.6rem 1rem;
+  margin: 0.1rem 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  color: var(--transcript-text-secondary);
 }
 
-.transcript-footer {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--foreground);
-  opacity: 0.7;
-  padding: 0.5rem 0;
+.transcript-line:hover {
+  background-color: var(--transcript-bg);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+.highlighted-line {
+  background-color: var(--transcript-accent);
+  color: var(--transcript-accent-text);
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
   .transcript-header {
     flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .copy-button {
-    margin-top: 0.5rem;
-    align-self: flex-end;
-  }
-  
-  .transcript-tabs button {
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-  }
-  
-  .transcript-content {
-    padding: 0.75rem;
-    max-height: 200px;
-  }
-  
-  .transcript-text {
-    font-size: 0.85rem;
+    align-items: stretch;
+    gap: 1rem;
   }
 }

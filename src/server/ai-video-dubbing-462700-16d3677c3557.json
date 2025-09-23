@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "ai-video-dubbing-462700",
+  "private_key_id": "16d3677c3557290c9c62101852eda9a2ef8e4b00",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQClch0XaFAWxX+u\n4bu6Di9RhxN4mxsRTNjTYc705ZX9ZT/zOzDFaAYfXM13FIzf9XcsuQZFJ9ypmT+N\n1wzZT7lxqvNCkgbwHVUx7iV0f6L9oEJ/dR3JBnicqSBxmR6KLoqyj0QWS8GA4HXW\naFeQnamU22ELTWjRUZw6B1dG/eqDvvupLFSG2ww2AoKAcyoRPtDNllRHwK36WuSC\n1Eir5RhJlVdbwtKz01Iej4mf62CHCz5U9G9xzoZJ6C8h9SaVkNLmTGthOX4TjLac\nzsMxsz1TZACJIBIJGMjISJ043xGPSiFedfppqzVWxwq5p3sYTXQO9rhdfZCN0U3V\nOOcTkt5NAgMBAAECggEAE1C3h0JRKVts7PqjK1VZHmRN+GRpXFNzs/gFDK/aGz+N\nIAU+zCk5H8O6pCakzMfQXksKqZu+BhnjYtiiwiMt5BCgflrkjvdpuR7Txh5ZpdEm\nOlGuxMep4KZZKJIHD/xfinmx6gV1palu8HV1ladmgz+6fHKQ5HEp81dkj9/4l2FO\nASqghVEr4tVqIfCS7vfAhhWKZdqeJy0o/oI4Z5hHUWP00XqxOZu2aaXv8+1P08+1\nCgdQ1Jew2E06VfiuffaIuyrnMuPRnmXdMYfHTj5ZXoT09fE1YXaWZ0bByI0H2jcR\n5fmIPYVvZqsayLVENwyr4HpwhfwFi9lW95oLknkvEQKBgQDoXNezl2XUZAHqLhpE\nKBJT8fUDC8Jz6mwVJy+uJONjimNPEM1UPKKN0wokOa+7JQnp41fW1EHHkv9CP1k/\nXtFRoQ18uqf50THa7wOqq+a49ypsQ4vItnBnfCQjC+PlghVl2+WgRxoASUcJrRin\nmauXkpSEaKtkqCNCbghAi0E/MQKBgQC2RqE+F5wwxM0cmuUxtbmZft9XfqAVHTa7\nXF80fkSRTNmT4DWAdopGsjXjAeYIojPkCkebkjtRNpGTvIp49GHQfmFXKlx3vy5d\nDvMcAGk7t7tKWTJxVWcDyymi4Eq7QSUJXdy0rBN9PHV9x9Ls4RAX0dWo/ReUjTX3\nw82Qwjoh3QKBgQCZ3lEgJdNSr97suha+p2JroD/FApaDt+pWn5pdUSQamFtm0hOG\nApkKHYQLtP9/h+lmrhtOsUPV6quJrPVml105FtMdk2UEctj2x2vAKxEfztyS0K/R\n+623eWdcpdUF9/w/dTw7xJmdMukNqUg4Q/Ry7KfYfo9wmj6vELn6M7zDIQKBgGTK\nU3jxN0XkXQL3R8sgEJwnArrv4vcp60zZPC/brnCmDR3u+caqRbXn71Iyh4+4mXb8\nlDIbPz+eLAuEUxGlGL1gVNUNMIpqpemBTb7rH0WNSDxJbFItBkSbv883tTssP52Z\nUGR7Tl+O4e0GZMTlgq+ZMUs7gCF9oBz8IZxtOhXlAoGBALPG7b1vyz3FawzxsDMd\n1qUpVi0xl6JLn5TKELEjUsGeyjhxMm+xmNFsJUOePrDsBB4kDnx3PD25FAbenCPb\ndAwFsMLe7AWg4zaHc3RuSfQyjC3eRTELTeGalb75js3JTudufn/ppQQrpw/RqXaI\nlaaRtUX8F/wtK2hEAYBQLEUN\n-----END PRIVATE KEY-----\n",
+  "client_email": "project@ai-video-dubbing-462700.iam.gserviceaccount.com",
+  "client_id": "117270241643788432968",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/project%40ai-video-dubbing-462700.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

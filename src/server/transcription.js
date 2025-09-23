@@ -1,125 +1,176 @@
 // server/transcription.js
-const fs = require('fs');
-const axios = require('axios');
+const { SpeechClient } = require('@google-cloud/speech');
+const fs = require('fs').promises;
 const path = require('path');
 const { exec } = require('child_process');
 const util = require('util');
-require('dotenv').config();
 
-// Promisify exec
 const execPromise = util.promisify(exec);
 
 /**
- * Extract audio from video and transcribe it
- * @param {string} videoPath - Path to the video file
- * @returns {Promise<string>} - Transcribed text
+ * Gets audio metadata like channel count using ffprobe.
+ * @param {string} filePath - Path to the media file.
+ * @returns {Promise<{channelCount: number}>}
  */
-async function transcribeAudio(videoPath) {
-  try {
-    // 1. Extract audio from video using ffmpeg
-    const audioFileName = `audio_${path.basename(videoPath, path.extname(videoPath))}.wav`;
-    const audioPath = path.join(path.dirname(videoPath), audioFileName);
-    
-    console.log(`Extracting audio to: ${audioPath}`);
-    
-    await execPromise(`ffmpeg -i "${videoPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`);
-    
-    // 2. Transcribe the audio
-    console.log('Transcribing audio...');
-    
-    const transcription = await transcribeWithAssemblyAI(audioPath);
-    
-    // Clean up the audio file
-    fs.unlinkSync(audioPath);
-    
-    return transcription;
-  } catch (error) {
-    console.error('Error in transcribeAudio:', error);
-    
-    // For a school project, you might want to return a hardcoded transcript
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Using fallback transcription for demo purposes');
-      return "This is a sample transcript. In a real implementation, this would be the actual transcription from your video.";
+async function getAudioMetadata(filePath) {
+    try {
+        const command = `ffprobe -v error -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "${filePath}"`;
+        const { stdout } = await execPromise(command);
+        const channelCount = parseInt(stdout.trim(), 10);
+        return { channelCount: isNaN(channelCount) ? 1 : channelCount };
+    } catch (error) {
+        console.warn(`Could not get audi  channel count for ${path.basename(filePath)}, defaulting to 1. Error: ${error.message}`);
+        return { channelCount: 1 };
     }
-    
-    throw new Error(`Failed to transcribe audio: ${error.message}`);
-  }
 }
 
 /**
- * Transcribe audio using AssemblyAI API
- * @param {string} audioPath - Path to the audio file
- * @returns {Promise<string>} - Transcribed text
+ * Extracts audio from a video file using ffmpeg.
+ * @param {string} videoPath - Path to the video file.
+ * @param {object} [options={}] - Extraction options.
+ * @param {number} [options.channelCount=1] - The number of audio channels to extract.
+ * @returns {Promise<string>} - The path to the extracted audio file.
  */
-async function transcribeWithAssemblyAI(audioPath) {
-  try {
-    // Check if API key is available
-    const apiKey = process.env.ASSEMBLY_AI_API_KEY;
-    if (!apiKey) {
-      throw new Error('AssemblyAI API key not found. Please set ASSEMBLY_AI_API_KEY in your .env file.');
-    }
-    
-    // Read the audio file
-    const audioFile = fs.readFileSync(audioPath);
-    
-    // 1. Upload the audio file
-    console.log('Uploading audio to AssemblyAI...');
-    const uploadResponse = await axios.post('https://api.assemblyai.com/v2/upload', audioFile, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Authorization': apiKey
-      }
-    });
-    
-    const audioUrl = uploadResponse.data.upload_url;
-    
-    // 2. Create transcription job
-    console.log('Creating transcription job...');
-    const transcriptResponse = await axios.post('https://api.assemblyai.com/v2/transcript', {
-      audio_url: audioUrl,
-      language_code: 'en'
-    }, {
-      headers: {
-        'Authorization': apiKey,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    const transcriptId = transcriptResponse.data.id;
-    
-    // 3. Poll for transcription completion
-    console.log(`Polling for transcription results (ID: ${transcriptId})...`);
-    let transcriptResult;
-    let complete = false;
-    
-    while (!complete) {
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds between polls
-      
-      const pollingResponse = await axios.get(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
-        headers: {
-          'Authorization': apiKey
-        }
-      });
-      
-      transcriptResult = pollingResponse.data;
-      
-      if (transcriptResult.status === 'completed' || transcriptResult.status === 'error') {
-        complete = true;
-      } else {
-        console.log(`Transcription status: ${transcriptResult.status}`);
-      }
-    }
-    
-    if (transcriptResult.status === 'error') {
-      throw new Error(`AssemblyAI error: ${transcriptResult.error}`);
-    }
-    
-    return transcriptResult.text;
-    
-  } catch (error) {
-    console.error('Error in transcribeWithAssemblyAI:', error);
-    throw new Error(`AssemblyAI transcription failed: ${error.message}`);
-  }
+async function extractAudio(videoPath, options = {}) {
+    const { channelCount = 1 } = options;
+    const audioFileName = `audio_${Date.now()}.wav`;
+    const audioPath = path.join(path.dirname(videoPath), audioFileName);
+    console.log(`Extracting audio to: ${audioPath}`);
+    const channelArg = `-ac ${channelCount}`;
+    await execPromise(`ffmpeg -y -i "${videoPath}" -vn -acodec pcm_s16le -ar 16000 ${channelArg} -af aresample=16000 "${audioPath}"`).catch(err => console.error("FFmpeg audio extraction error:", err));
+    return audioPath;
 }
 
-module.exports = { transcribeAudio };
+/**
+ * Transcribes audio from a video file using Google Cloud Speech-to-Text.
+ * @param {string} videoPath - Path to the video file.
+ * @param {string} sourceLanguage - The language of the audio (e.g., 'en-US').
+ * @param {object} [options={}] - Transcription options.
+ * @param {boolean} [options.enableDiarization=false] - Whether to enable speaker diarization.
+ * @returns {Promise<object>} - An object with the full text and an array of word objects.
+ */
+async function transcribeAudio(videoPath, sourceLanguage = 'en-US', options = {}) {
+    const { enableDiarization = false } = options;
+    let audioPath = '';
+    try {
+        // Get audio metadata to determine channel count.
+        const metadata = await getAudioMetadata(videoPath);
+        
+        // For diarization, preserve original channels. For single speaker, force to mono.
+        const extractionChannelCount = enableDiarization ? metadata.channelCount : 1;
+
+        // 1. Extract audio from the video file.
+        audioPath = await extractAudio(videoPath, { channelCount: extractionChannelCount });
+
+        // 2. Initialize the Google Speech client. It will automatically find your credentials.
+        const speechClient = new SpeechClient();
+
+        // 3. Read the audio file into memory.
+        const file = await fs.readFile(audioPath);
+        const audioBytes = file.toString('base64');
+
+        // 4. Configure the request to Google.
+        const config = {
+            encoding: 'LINEAR16',
+            sampleRateHertz: 16000,
+            languageCode: sourceLanguage,
+            enableWordTimeOffsets: true, // Crucial for getting word timestamps!
+            enableAutomaticPunctuation: true,
+            // Set the channel count based on the extracted audio.
+            audioChannelCount: extractionChannelCount,
+        };
+
+        if (enableDiarization) {
+            // If audio has multiple channels, this can improve recognition.
+            if (extractionChannelCount > 1) {
+                config.enableSeparateRecognitionPerChannel = true;
+            }
+
+            // Enable speaker diarization to distinguish between different speakers.
+            config.diarizationConfig = {
+                enableSpeakerDiarization: true,
+                minSpeakerCount: 2, // Diarization is for 2 or more speakers.
+                maxSpeakerCount: 6, // You can adjust this value if you expect more speakers
+            };
+        }
+
+        const audio = {
+            content: audioBytes,
+        };
+
+        const request = {
+            config: config,
+            audio: audio,
+        };
+
+        // 5. Since the app restricts uploads to < 1 min, we can choose the API method.
+        // Use sync `recognize` if diarization is off (faster).
+        // Use async `longRunningRecognize` if diarization is on (as it's required for that feature).
+        let response;
+        if (enableDiarization) {
+            console.log('Sending audio to Google Speech-to-Text for long-running recognition (for speaker diarization)...');
+            const [operation] = await speechClient.longRunningRecognize(request);
+
+            // The promise resolves when the job is complete.
+            console.log('Waiting for transcription to complete...');
+            [response] = await operation.promise();
+        } else {
+            console.log('Sending audio to Google Speech-to-Text for synchronous recognition...');
+            const [syncResponse] = await speechClient.recognize(request);
+            response = syncResponse;
+        }
+        
+        if (!response.results || response.results.length === 0) {
+            throw new Error('Google Speech-to-Text returned no results.');
+        }
+
+        // 6. Format the response to match what your application expects.
+        const fullText = response.results.map(result => result.alternatives[0].transcript).join('\n');
+        
+        let allWords;
+        if (enableDiarization) {
+            // For async recognition with diarization, the final result contains all words with speaker tags.
+            const lastResult = response.results[response.results.length - 1];
+            allWords = lastResult?.alternatives?.[0]?.words || [];
+        } else {
+            // For sync recognition, the API may return multiple results for pauses in speech.
+            // We must concatenate the words from all results to get the full transcript.
+            allWords = response.results.flatMap(result => result.alternatives?.[0]?.words || []);
+        }
+
+        if (allWords.length === 0) {
+            throw new Error('Transcription completed, but no words with timestamps were found.');
+        }
+
+        const words = allWords.map(wordInfo => {
+            const startSec = (wordInfo.startTime.seconds || 0) + (wordInfo.startTime.nanos || 0) / 1e9;
+            const endSec = (wordInfo.endTime.seconds || 0) + (wordInfo.endTime.nanos || 0) / 1e9;
+
+            return {
+                text: wordInfo.word,
+                start: startSec,
+                end: endSec,
+                // When diarization is enabled, `speakerTag` is used. Fallback to 1 if not present.
+                // FIX: Use nullish coalescing (??) instead of OR (||).
+                // This prevents a valid speakerTag of `0` from being incorrectly replaced with `1`.
+                speakerTag: wordInfo.speakerTag ?? 1,
+            };
+        });
+
+        console.log(`Transcription successful. Speaker diarization was ${enableDiarization ? 'enabled' : 'disabled'}.`);
+        return { text: fullText, words: words };
+
+    } catch (error) {
+        console.error('Error in transcribeAudio with Google:', error);
+        throw new Error(`Google transcription failed: ${error.message}`);
+    } finally {
+        // 7. Clean up the temporary audio file.
+        if (audioPath) {
+            await fs.unlink(audioPath).catch(err => console.error('Error deleting temp audio file:', err));
+        }
+    }
+}
+
+module.exports = {
+    transcribeAudio
+};
