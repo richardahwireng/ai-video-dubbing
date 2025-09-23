@@ -70,6 +70,22 @@
   opacity: 0.9;
 }
 
+.upload-options {
+  margin-top: 1rem;
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+
+.upload-options label {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.upload-options input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
 .file-info {
   margin-top: 1.5rem;
   padding: 1rem;

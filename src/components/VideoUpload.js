@@ -1,14 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react'; 
 import '../styles/components.css';
 
-function VideoUpload({ onFileUpload }) {
+function VideoUpload({ onFileUpload, hasMultipleSpeakers, onMultipleSpeakersChange }) {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState('');
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
   
-  // Handle file selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -16,9 +15,10 @@ function VideoUpload({ onFileUpload }) {
     }
   };
   
-  // Validate file type and size
   const validateAndProcessFile = (file) => {
     setError('');
+    setFileName('');
+    setFileSize('');
     
     // Check if file is a video
     if (!file.type.startsWith('video/')) {
@@ -32,14 +32,27 @@ function VideoUpload({ onFileUpload }) {
       setError(`File size too large. Maximum size is 100MB.`);
       return;
     }
-    
-    // File is valid, set info and process
-    setFileName(file.name);
-    setFileSize(formatFileSize(file.size));
-    onFileUpload(file);
+
+    // Check video duration (must be <= 60 seconds)
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.src = URL.createObjectURL(file);
+
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src); // Clean up memory
+      const duration = video.duration;
+      if (duration > 60) {
+        setError('Video must be 1 minute or less.');
+        return;
+      }
+
+      // Passed all checks
+      setFileName(file.name);
+      setFileSize(formatFileSize(file.size));
+      onFileUpload(file);
+    };
   };
   
-  // Format file size to human readable format
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -48,12 +61,6 @@ function VideoUpload({ onFileUpload }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
   
-  // Handle click on upload area
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
-  };
-  
-  // Handle drag events
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -83,7 +90,10 @@ function VideoUpload({ onFileUpload }) {
     }
   };
   
-  // Icons (using emoji for simplicity, could use SVG or FontAwesome)
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+  
   const uploadIcon = "📁";
   const videoIcon = "🎬";
   
@@ -94,15 +104,17 @@ function VideoUpload({ onFileUpload }) {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      onClick={handleUploadClick}
     >
-      <span className="upload-icon">{uploadIcon}</span>
+      <span className="upload-icon" role="img" aria-label="Folder with arrow">
+        {uploadIcon}
+      </span>
       <h3>Upload Your Video</h3>
       <p>Drag and drop your video file here, or click to browse</p>
       
       <div className="file-types">
         <p>Supported formats: MP4, WebM, MOV, AVI</p>
         <p>Maximum file size: 100MB</p>
+        <p>Maximum duration: 1 minute</p>
       </div>
       
       <input
@@ -114,12 +126,25 @@ function VideoUpload({ onFileUpload }) {
         style={{ display: 'none' }}
       />
       
-      <button className="upload-btn">
-        {videoIcon} Select Video
+      <button className="upload-btn" onClick={handleButtonClick}>
+        <span role="img" aria-label="Movie camera">
+          {videoIcon}
+        </span> Select Video
       </button>
       
+      <div className="upload-options">
+        <label>
+          <input 
+            type="checkbox" 
+            checked={hasMultipleSpeakers} 
+            onChange={onMultipleSpeakersChange} 
+          />
+          Video has multiple speakers
+        </label>
+      </div>
+      
       {error && (
-        <div className="upload-error">
+        <div className="upload-error" role="alert">
           {error}
         </div>
       )}

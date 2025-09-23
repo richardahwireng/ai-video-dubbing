@@ -95,3 +95,66 @@ body {
     font-size: 1rem;
   }
 }
+/* Add to src/styles/App.css */
+.download-section {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0 0.5rem 0;
+}
+
+.download-button {
+  background-color: #28a745; /* Green color */
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.download-button:hover {
+  background-color: #218838; /* Darker green */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.download-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+/* Add to src/styles/App.css */
+.player-wrapper {
+  /* This placeholder prevents the page content from jumping when the player sticks */
+  min-height: 500px; /* Adjust this value to roughly match your player's height */
+  width: 100%;
+  transition: min-height 0.3s ease;
+}
+
+.player-wrapper.sticky {
+  /* When sticky, the placeholder collapses to not take up space */
+  min-height: 0;
+}
+
+/* This is the style for the player when it sticks to the top-right */
+.player-wrapper.sticky .artplayer-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 100%;
+  max-width: 400px; /* Adjust size for the "bubble" effect */
+  z-index: 1000;
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-150px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

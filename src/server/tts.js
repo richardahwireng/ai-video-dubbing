@@ -1,70 +1,58 @@
+// server/tts.js
 const axios = require('axios');
-require('dotenv').config();
+const fs = require('fs').promises;
 
-// Base URL for the TTS API
-const TTS_API_URL = process.env.TTS_API_URL ;
-const MODEL_LOAD_URL = process.env.MODEL_LOAD_URL;
-
-// Function to load the model
-async function loadModel() {
+/**
+ * Synthesize text to speech using your friend's TTS API
+ * @param {string} text - Text to synthesize
+ * @param {string} outputFilePath - Path to save the audio file
+ * @param {string} [speakerVoice='IM'] - The speaker voice to use (e.g., 'IM', 'PT').
+ * @returns {Promise<void>} - Resolves when audio is saved
+ */
+async function synthesizeAudio(text, outputFilePath, speakerVoice = 'IM') {
   try {
-    console.log("🚀 Loading model...");
-    const response = await axios.post(MODEL_LOAD_URL, {}, { headers: { 'accept': 'application/json' } });
-    
-    if (response.status === 200) {
-      console.log("✅ Model loaded successfully!");
-    } else {
-      console.error("❌ Failed to load model:", response.data);
-      throw new Error('Failed to load model');
+    if (!text || !outputFilePath) {
+      throw new Error('Text and output file path are required.');
     }
-  } catch (error) {
-    console.error("❌ Error loading model:", error.message);
-    throw error;
-  }
-}
 
-// Function to generate speech using the API
-async function generateSpeech(text) {
-  try {
-    console.log(`🔊 Generating speech for: "${text.slice(0, 60)}..."`);
+    // API endpoint
+    const url = 'https://hcidcsug--ugtts-vits-twi-akan-api.modal.run';
 
-    // Ensure the model is loaded first
-    await loadModel();
-
-    const modelName = 'AI-VIDEO-DUBBING';  // Correct model name
-    const speaker = 'male';  // Choose male/female speaker
-    const lengthScale = 1.0;  // Speed of speech
-    const autocorrect = false;  // Whether autocorrection should be applied
-
-    const requestBody = {
-      text,
-      model_name: modelName,
-      speaker,
-      length_scale: lengthScale,
-      autocorrect,
+    // Payload
+    const payload = {
+      text: text,
+      // FIX: The API model list specifies 'model_id'. Using 'model_id' is more specific
+      // and less ambiguous than 'model_type', which could be causing the API to default to one speaker.
+      model_id: 'ms-3', // Use the specific multi-speaker model ID
+      speaker: speakerVoice,
     };
 
-    console.log("🚀 Sending request to TTS API:", TTS_API_URL);
+    // Headers
+    const headers = { 'Content-Type': 'application/json' };
 
-    const response = await axios.post(TTS_API_URL, requestBody, {
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-      },
-    });
+    // Send request
+    const response = await axios.post(url, payload, { headers, responseType: 'arraybuffer' });
 
-    if (response.data.success) {
-      const audioPath = response.data.audio_path;
-      console.log(`✅ MP3 audio saved to: ${audioPath}`);
-      return audioPath;
+    // Check response
+    if (response.status === 200 && response.headers['content-type'].includes('audio')) {
+      await fs.writeFile(outputFilePath, Buffer.from(response.data));
+      console.log(`   - Audio clip saved successfully for speaker ${speakerVoice}`);
     } else {
-      console.error("❌ Error generating speech:", response.data.error);
-      throw new Error('TTS API synthesis failed.');
+      console.error('Unexpected response from TTS API');
+      console.error('Status:', response.status);
+      console.error('Content-Type:', response.headers['content-type']);
+      console.error('Response data (as string):', Buffer.from(response.data).toString());
+      throw new Error('TTS API response was not audio.');
     }
+
   } catch (error) {
-    console.error('❌ Error generating speech:', error.message);
+    console.error(`Error in synthesizeAudio for speaker ${speakerVoice}:`, error.message);
+    if (error.response) {
+      console.error('TTS API status:', error.response.status);
+      console.error('TTS API data:', Buffer.from(error.response.data).toString());
+    }
     throw error;
   }
 }
 
-module.exports = { generateSpeech };
+module.exports = { synthesizeAudio };
